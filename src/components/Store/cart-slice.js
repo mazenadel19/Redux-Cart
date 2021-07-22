@@ -1,4 +1,5 @@
 import { createSlice, current } from '@reduxjs/toolkit'
+import { uiActions } from './ui-slice'
 
 const initialState = {
 	items: [],
@@ -47,6 +48,51 @@ const cartSlice = createSlice({
 		},
 	},
 })
+
+export const sendCartData = cart => {
+	//custome action creator aka thunk
+	return async dispatch => {
+		dispatch(
+			uiActions.showNotification({
+				// <- action creater converted by redux to {type:'UNIQUE_TYPE',payload:'...'}
+				status: 'pending',
+				title: 'Sending...',
+				message: 'Sending cart data!',
+			}),
+		)
+
+		const sendRequest = async () => {
+			const response = await fetch(
+				'https://redux-cart-demo1-default-rtdb.europe-west1.firebasedatabase.app/cart.json',
+				{
+					method: 'PUT',
+					body: JSON.stringify(cart),
+				},
+			)
+
+			if (!response.ok) throw new Error('SENDING CART DATA FAILED!')
+		}
+
+		try {
+			sendRequest()
+			dispatch(
+				uiActions.showNotification({
+					status: 'succes',
+					title: 'Success!',
+					message: 'Sent cart data Successfully!',
+				}),
+			)
+		} catch (e) {
+			dispatch(
+				uiActions.showNotification({
+					status: 'error',
+					title: 'Fail!',
+					message: 'Failed to send cart data!',
+				}),
+			)
+		}
+	}
+}
 
 export const cartActions = cartSlice.actions
 export default cartSlice
