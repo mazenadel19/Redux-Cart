@@ -4,7 +4,7 @@ import Cart from './components/Cart/Cart'
 import Layout from './components/Layout/Layout'
 import Products from './components/Shop/Products'
 import Notification from './components/UI/Notification'
-import { sendCartData } from './components/Store/cart-slice'
+import { fetchCartData, sendCartData } from './components/Store/cart-actions'
 
 let initalRender = true
 
@@ -16,11 +16,15 @@ function App() {
 	const dispatch = useDispatch()
 
 	useEffect(() => {
+		dispatch(fetchCartData())
+	}, [dispatch])
+
+	useEffect(() => {
 		if (initalRender) {
 			initalRender = false
 			return
 		}
-		dispatch(sendCartData(cart))
+		if (cart.changed) dispatch(sendCartData(cart))
 	}, [cart, dispatch]) // react-redux ensure that dispatch never change so it won't trigger useEffect
 
 	return (
